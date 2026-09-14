@@ -10,6 +10,7 @@ import {
   DocumentArrowUpIcon,
   ChevronDoubleDownIcon,
   ChevronDoubleUpIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -172,6 +173,20 @@ function Toolbar() {
               aria-label="Collapse all"
             >
               <ChevronDoubleUpIcon className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => {
+                if (window.confirm('Start a new blank curriculum? Your current draft will be reset (you can undo this).')) {
+                  dispatch({ type: 'RESET_TREE' });
+                }
+              }}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition flex items-center gap-1 text-xs"
+              title="Start a new blank curriculum"
+              aria-label="New curriculum"
+            >
+              <ArrowPathIcon className="w-4 h-4" />
+              <span className="hidden sm:inline font-medium">Reset</span>
             </button>
 
             <div className="w-px h-6 bg-gray-200 mx-1" />

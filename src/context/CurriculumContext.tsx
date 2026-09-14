@@ -32,6 +32,7 @@ type Action =
   | { type: 'EXPAND_ALL' }
   | { type: 'COLLAPSE_ALL' }
   | { type: 'REPLACE_TREE'; root: CurriculumNode }
+  | { type: 'RESET_TREE' }
   | { type: 'SET_SELECTED'; id: string | null };
 
 function loadFromStorage(): CurriculumNode | null {
@@ -96,6 +97,13 @@ function curriculumReducer(state: CurriculumState, action: Action): CurriculumSt
       return { ...state, root: collapseAll(state.root) };
     case 'REPLACE_TREE':
       return { ...state, root: action.root, undoSnapshot: null, deletedItemLabel: null };
+    case 'RESET_TREE':
+      return {
+        ...state,
+        root: createEmptyCurriculum(),
+        undoSnapshot: state.root,
+        deletedItemLabel: 'Curriculum',
+      };
     case 'SET_SELECTED':
       return { ...state, selectedNodeId: action.id };
     default:
