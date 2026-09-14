@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: import.meta.dirname,
   },
-  serverExternalPackages: ['pdf-parse'],
+  serverExternalPackages: ['pdf2json'],
 };
 
 export default nextConfig;
