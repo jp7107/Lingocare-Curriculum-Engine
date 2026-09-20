@@ -109,7 +109,56 @@ src/
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
----
+---Below is the verified end-to-end architecture---
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    BROWSER (CLIENT)                                     │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐   │
+│   │                                 src/app/page.tsx                                │   │
+│   │ ┌───────────────────────┐ ┌───────────────────────────┐ ┌─────────────────────┐ │   │
+│   │ │        Toolbar        │ │       NodeRenderer        │ │    UndoToast        │ │   │
+│   │ └───────────┬───────────┘ └─────────────▲─────────────┘ └─────────────────────┘ │   │
+│   └─────────────┼───────────────────────────┼───────────────────────────────────────┘   │
+│                 │                           │                                           │
+│   ┌─────────────▼───────────────────────────┴───────────────────────────────────────┐   │
+│   │                   STATE LAYER: src/context/CurriculumContext.tsx                    │  
+│   │  useReducer(curriculumReducer)  <───>  localStorage ("lingocare_curriculum_state")  │
+│   └─────────────┬───────────────────────────────────────────────────────────────────┘   │
+└─────────────────┼───────────────────────────────────────────────────────────────────────┘
+                  │ HTTP POST (FormData)
+                  ▼
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                NEXT.JS SERVER (BACKEND)                                 │
+│                                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────────────────────┐   │
+│   │                        src/app/api/parse-pdf/route.ts                           │   │
+│   │                                                                                 │   │
+│   │  1. Receive file Buffer  ──>  src/lib/pdf.ts (pdf2json coordinate parser)       │   │
+│   │  2. Extract Text Lines & Raw Text                                               │   │
+│   │                                                                                 │   │
+│   │  ─── TIER 1: Regex Parser (src/lib/parse-structure.ts) ───────────────────────  │   │
+│   │       Has explicit hierarchy headers?  ──YES──> [Validate & Return]             │   │
+│   │       │ NO                                                                      │   │
+│   │       ▼                                                                         │   │
+│   │  ─── TIER 2: LLM Parser (Groq SDK) ───────────────────────────────────────────  │   │
+│   │       Calls groq.chat.completions.create(model: 'openai/gpt-oss-120b')          │   │
+│   │       │ Failed / Rate-limited?                                                  │   │
+│   │       ▼                                                                         │   │
+│   │  ─── TIER 3: Intelligent Fallback (src/lib/fallback.ts) ─────────────────────── │   │
+│   │       Generate structured nodes from raw lines                                  │   │
+│   │                                                                                 │   │
+│   │  3. Sanitize & Enforce Schema  ──>  src/lib/validate.ts (validateAndSanitize)   │   │
+│   └────────────────────────────────────────┬────────────────────────────────────────┘   │
+└────────────────────────────────────────────┼────────────────────────────────────────────┘
+                                             │ JSON Response: { curriculum: ... }
+                                             ▼
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 BROWSER REVIEW GATE                                     │
+│                                                                                         │
+│   User sees src/components/AiReviewPanel.tsx (Shows Stats & Inferred vs Source breakdown)│
+│   User clicks "Import" ──> dispatch({ type: 'REPLACE_TREE' }) ──> Tree Renders          │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+
 
 ## 🧠 AI Integration Design
 
