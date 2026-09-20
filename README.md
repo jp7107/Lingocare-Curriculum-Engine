@@ -110,6 +110,8 @@ src/
 ```
 
 ---Below is the verified end-to-end architecture---
+
+```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
 │                                    BROWSER (CLIENT)                                     │
 │                                                                                         │
@@ -159,6 +161,7 @@ src/
 │   User clicks "Import" ──> dispatch({ type: 'REPLACE_TREE' }) ──> Tree Renders          │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
 
+```
 
 ## 🧠 AI Integration Design
 
